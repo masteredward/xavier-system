@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Deploy the Xavier System into an AWS account
+
+Parameters:
+  XavierInstanceName:
+    Type: "String"
+    Default: "my-xavier-system"
+  OwnerEmail:
+    Type: "String"
+    Default: "my@email.com"
+  SSHKey:
+    Type: "String"
+    Default: "ssh-ed25519 ... my@email.com"
+  AmiId:
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: "/aws/service/ami-amazon-linux-latest/al2022-ami-minimal-kernel-default-arm64"
+  InstanceType:
+    Type: "String"
+    Default: "t4g.medium"
+  DiskSize:
+    Type: "String"
+    Default: "20"
+  VpcId:
+    Type: "String"
+    Default: "vpc-xxx"
+  SubnetId:
+    Type: "String"
+    Default: "subnet-xxx"
+  UserData:
+    Type: "String"
+    Default: |
+      #!/bin/bash
+
+      ARCH="arm64"
+      AWS_REGION="us-east-1"
+
+      dnf install -y https://s3.${AWS_REGION}.amazonaws.com/amazon-ssm-${AWS_REGION}/latest/linux_${ARCH}/amazon-ssm-agent.rpm
+      systemctl enable amazon-ssm-agent --now
+      dnf install -y docker git
+      systemctl enable docker --now
+      dnf update -y
+
+      mkdir -p /opt/xavier/system
+      git clone --depth=1 --single-branch https://github.com/masteredward/xavier-system.git /opt/xavier/system
+
+Resources:
+  XavierIamRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Ref "XavierInstanceName"
+      Description: "Xavier SSM Managed Instance Role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - 'sts:AssumeRole'
+      Path: "/"
+      ManagedPolicyArns:
+      - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      Tags:
+      - Key: "Name"
+        Value: !Ref "XavierInstanceName"
+      - Key: "Owner"
+        Value: !Ref "OwnerEmail"
+
+  XavierInstanceProfile: 
+    Type: "AWS::IAM::InstanceProfile"
+    Properties: 
+      InstanceProfileName: !Ref "XavierInstanceName"
+      Path: "/"
+      Roles: 
+      - !Ref "XavierIamRole"
+
+  XavierKeyPair:
+    Type: "AWS::EC2::KeyPair"
+    Properties:
+      KeyName: !Ref "OwnerEmail"
+      PublicKeyMaterial: !Ref "SSHKey"
+      Tags:
+      - Key: "Name"
+        Value: !Ref "XavierInstanceName"
+      - Key: "Owner"
+        Value: !Ref "OwnerEmail"
+
+  XavierSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Block Inbound / Allow Outbound"
+      GroupName: !Ref "XavierInstanceName"
+      VpcId: !Ref "VpcId"
+      Tags: 
+      - Key: "Name"
+        Value: !Ref "XavierInstanceName"
+      - Key: "Owner"
+        Value: !Ref "OwnerEmail"
+
+  XavierInstance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: !Ref "InstanceType"
+      ImageId: !Ref "AmiId"
+      IamInstanceProfile: !Ref "XavierInstanceProfile"
+      KeyName: !Ref "XavierKeyPair"
+      CreditSpecification:
+        CPUCredits: "standard"
+      UserData:
+        Fn::Base64: !Ref "UserData"
+      BlockDeviceMappings: 
+      - DeviceName: "/dev/xvda"
+        Ebs: 
+          VolumeType: "gp2"
+          Encrypted: "true"
+          DeleteOnTermination: "true"
+          VolumeSize: !Ref "DiskSize"
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: "true"
+        DeviceIndex: "0"
+        GroupSet: 
+        - !Ref "XavierSecurityGroup"
+        SubnetId: !Ref "SubnetId"
+      Tags:
+      - Key: "Name"
+        Value: !Ref "XavierInstanceName"
+      - Key: "Owner"
+        Value: !Ref "OwnerEmail"
+      - Key: "Auto-Stop"
+        Value: "yes"

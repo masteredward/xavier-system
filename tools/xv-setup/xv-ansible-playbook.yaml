@@ -1,0 +1,70 @@
+---
+- name: Xavier System Setup
+  hosts: localhost
+  connection: local
+
+  tasks:
+  - name: Ensure Xavier System directory structure
+    ansible.builtin.file:
+      path: "{{ item.path }}"
+      state: directory
+      mode: 0755
+      owner: root
+      group: root
+    loop:
+    - path: /host/opt/xavier/root
+    - path: /host/opt/xavier/root/.ssh
+    - path: /host/opt/xavier/workspace
+
+  - name: Install/Update oh-my-zsh
+    ansible.builtin.git:
+      repo: https://github.com/ohmyzsh/ohmyzsh.git
+      dest: /host/opt/xavier/root/.oh-my-zsh
+      single_branch: yes
+      force: yes
+      depth: 1
+
+  - name: Copy .zshrc from oh-my-zsh default template (no overwrite)
+    ansible.builtin.copy:
+      src: /host/opt/xavier/root/.oh-my-zsh/templates/zshrc.zsh-template
+      dest: /host/opt/xavier/root/.zshrc
+      force: no
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Install/Update powerlevel10k oh-my-zsh theme
+    ansible.builtin.git:
+      repo: https://github.com/romkatv/powerlevel10k.git
+      dest: /host/opt/xavier/root/.oh-my-zsh/custom/themes/powerlevel10k
+      single_branch: yes
+      force: yes
+      depth: 1
+
+  - name: Copy host authorized_keys from ec2-user into Xavier System
+    ansible.builtin.copy:
+      src: /host/home/ec2-user/.ssh/authorized_keys
+      dest: /host/opt/xavier/root/.ssh/authorized_keys
+      owner: root
+      group: root
+      mode: 0600
+
+  - name: Install xv command
+    ansible.builtin.copy:
+      src: /host/opt/xavier/system/tools/xv-setup/xv.sh
+      dest: /host/usr/local/bin/xv
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: Copy xv.yaml example into Xavier System directory (no overwrite)
+    ansible.builtin.copy:
+      src: /host/opt/xavier/system/tools/xv-setup/xv.example.yaml
+      dest: /host/opt/xavier/system/xv.yaml
+      force: no
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Build xv container tool
+    ansible.builtin.shell: chroot /host /bin/bash -c "docker build /opt/xavier/system/tools/xv/ -t xv"

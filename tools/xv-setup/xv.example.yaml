@@ -1,0 +1,43 @@
+shared:
+  ports:
+  - host: 127.0.0.1:2222
+    container: 22
+    protocol: tcp
+  environment:
+  - name: BUILT_BY
+    value: xavier-system
+  volumes:
+  - source: /opt/xavier/root
+    target: /root
+    mode: rw
+  - source: /opt/xavier/workspace
+    target: /workspace
+    mode: rw
+  - source: /etc/gitconfig
+    target: /etc/gitconfig
+    mode: ro
+
+containers:
+  cdk-base:
+    ports: []
+    environment:
+    - name: AWS_PROFILE
+      value: myprofile
+    volumes:
+    - source: /root/.aws
+      target: /root/.aws
+      mode: rw
+
+  docker-manager:
+    ports: []
+    environment: []
+    volumes:
+    - source: /usr/bin/docker
+      target: /usr/bin/docker
+      mode: ro
+    - source: /var/run/docker.sock
+      target: /var/run/docker.sock
+      mode: rw
+    - source: /root/.aws
+      target: /root/.aws
+      mode: rw

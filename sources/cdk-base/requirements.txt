@@ -1,0 +1,12 @@
+pylint
+flake8
+autopep8
+black
+yapf
+mypy
+pydocstyle
+pycodestyle
+bandit
+boto3
+aws-cdk-lib
+constructs>=10.0.0,<11.0.0
