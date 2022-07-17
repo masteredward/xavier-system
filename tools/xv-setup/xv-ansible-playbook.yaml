@@ -14,6 +14,8 @@
     loop:
     - path: /host/opt/xavier/root
     - path: /host/opt/xavier/root/.ssh
+    - path: /host/opt/xavier/sources
+    - path: /host/opt/xavier/tools
     - path: /host/opt/xavier/workspace
 
   - name: Install/Update oh-my-zsh
@@ -41,6 +43,17 @@
       force: yes
       depth: 1
 
+  - name: Set oh-my-zsh theme to powerlevel10k
+    ansible.builtin.replace:
+      path: /host/opt/xavier/root/.zshrc
+      regexp: '(^ZSH_THEME=\")\S+(\")'
+      replace: '\1powerlevel10k/powerlevel10k\2'
+  
+  - name: Disable powerlevel10k auto setup
+    lineinfile:
+      path: /host/opt/xavier/root/.zshrc
+      line: POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+
   - name: Copy host authorized_keys from ec2-user into Xavier System
     ansible.builtin.copy:
       src: /host/home/ec2-user/.ssh/authorized_keys
@@ -49,22 +62,13 @@
       group: root
       mode: 0600
 
-  - name: Install xv command
+  - name: Install xv script
     ansible.builtin.copy:
       src: /host/opt/xavier/system/tools/xv-setup/xv.sh
       dest: /host/usr/local/bin/xv
       owner: root
       group: root
       mode: 0755
-
-  - name: Copy xv.yaml example into Xavier System directory (no overwrite)
-    ansible.builtin.copy:
-      src: /host/opt/xavier/system/tools/xv-setup/xv.example.yaml
-      dest: /host/opt/xavier/system/xv.yaml
-      force: no
-      owner: root
-      group: root
-      mode: 0644
 
   - name: Build xv container tool
     ansible.builtin.shell: chroot /host /bin/bash -c "docker build /opt/xavier/system/tools/xv/ -t xv"

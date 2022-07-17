@@ -130,3 +130,8 @@ Resources:
         Value: !Ref "OwnerEmail"
       - Key: "Auto-Stop"
         Value: "yes"
+
+Outputs:
+  XavierInstanceId:
+    Description: Xavier Instance ID
+    Value: !Ref XavierInstance

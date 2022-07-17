@@ -1,4 +1,0 @@
-sources/*
-!sources/cdk-base/
-!sources/docker-manager/
-xv.yaml

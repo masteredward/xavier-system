@@ -7,7 +7,7 @@ from yaml import safe_load
 def load_yaml():
   return safe_load(
     open(
-      "/xv.yaml",
+      "/sources/xv.yaml",
       "r",
       encoding="utf-8"
     )
