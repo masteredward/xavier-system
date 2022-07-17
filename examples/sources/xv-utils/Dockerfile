@@ -20,8 +20,6 @@ COPY /entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
-WORKDIR /workspace
-
 EXPOSE 22
 
 ENTRYPOINT ["/entrypoint.sh"]

@@ -48,11 +48,6 @@
       path: /host/opt/xavier/root/.zshrc
       regexp: '(^ZSH_THEME=\")\S+(\")'
       replace: '\1powerlevel10k/powerlevel10k\2'
-  
-  - name: Disable powerlevel10k auto setup
-    lineinfile:
-      path: /host/opt/xavier/root/.zshrc
-      line: POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 
   - name: Copy host authorized_keys from ec2-user into Xavier System
     ansible.builtin.copy:

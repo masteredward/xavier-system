@@ -13,9 +13,9 @@ shared:
   - source: /opt/xavier/workspace
     target: /workspace
     mode: rw
-  - source: /etc/gitconfig
-    target: /etc/gitconfig
-    mode: ro
+  # - source: /etc/gitconfig
+  #   target: /etc/gitconfig
+  #   mode: ro
 
 containers:
   cdk-base:
@@ -28,9 +28,11 @@ containers:
       target: /root/.aws
       mode: rw
 
-  docker-manager:
+  xv-utils:
     ports: []
-    environment: []
+    environment:
+    - name: POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD
+      value: "true"
     volumes:
     - source: /usr/bin/docker
       target: /usr/bin/docker
@@ -40,4 +42,7 @@ containers:
       mode: rw
     - source: /root/.aws
       target: /root/.aws
+      mode: rw
+    - source: /opt/xavier
+      target: /xavier
       mode: rw
