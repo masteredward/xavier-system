@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from python_on_whales import docker
 from sys import argv
+from python_on_whales import docker
 from yaml import safe_load
 
 def load_yaml():
@@ -19,10 +19,10 @@ def build_image(image):
     tags=[image]
   )
 
-def dedup_list(list):
+def dedup_list(item_list):
   return [
     i for n,
-    i in enumerate(list) if i not in list[n + 1:]
+    i in enumerate(item_list) if i not in item_list[n + 1:]
   ]
 
 def get_ports(config, image):
@@ -96,6 +96,7 @@ def main():
   try: 
     remove_container()
   except:
+    print("No container running to stop.")
     pass
   print(f"New container ID: {run_image(config, image)}")
 

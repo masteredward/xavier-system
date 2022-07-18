@@ -11,6 +11,13 @@ RUN dnf install -y \
 
 COPY --from=docker/buildx-bin:latest /buildx /usr/libexec/docker/cli-plugins/docker-buildx
 
+COPY /requirements.txt /tmp/requirements.txt
+
+RUN curl -sSL https://bootstrap.pypa.io/get-pip.py | python3 \
+  && pip install --no-cache-dir -r /tmp/requirements.txt \
+  && pip cache purge \
+  && rm /tmp/requirements.txt -f
+
 RUN ssh-keygen -A && passwd -d root \
   && printf "\nPasswordAuthentication no\nPermitUserEnvironment yes\n" >> /etc/ssh/sshd_config
 
