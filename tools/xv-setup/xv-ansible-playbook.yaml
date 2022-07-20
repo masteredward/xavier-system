@@ -2,11 +2,13 @@
 - name: Xavier System Setup
   hosts: localhost
   connection: local
+  vars_files:
+  - /host/opt/xavier/system/xv-setup.yaml
 
   tasks:
   - name: Ensure Xavier System directory structure
     ansible.builtin.file:
-      path: "{{ item.path }}"
+      path: '{{ item.path }}'
       state: directory
       mode: 0755
       owner: root
@@ -20,6 +22,7 @@
     - path: /host/opt/xavier/workspace
 
   - name: Install/Update oh-my-zsh
+    when: install['ohmyzsh'] == True
     ansible.builtin.git:
       repo: https://github.com/ohmyzsh/ohmyzsh.git
       dest: /host/opt/xavier/root/.oh-my-zsh
@@ -28,6 +31,7 @@
       depth: 1
 
   - name: Copy .zshrc from oh-my-zsh default template (no overwrite)
+    when: install['ohmyzsh'] == True
     ansible.builtin.copy:
       src: /host/opt/xavier/root/.oh-my-zsh/templates/zshrc.zsh-template
       dest: /host/opt/xavier/root/.zshrc
@@ -37,6 +41,9 @@
       mode: 0644
 
   - name: Install/Update powerlevel10k oh-my-zsh theme
+    when:
+    - install['ohmyzsh'] == True
+    - install['powerlevel10k'] == True
     ansible.builtin.git:
       repo: https://github.com/romkatv/powerlevel10k.git
       dest: /host/opt/xavier/root/.oh-my-zsh/custom/themes/powerlevel10k
@@ -45,32 +52,30 @@
       depth: 1
 
   - name: Set oh-my-zsh theme to powerlevel10k
+    when:
+    - install['ohmyzsh'] == True
+    - install['powerlevel10k'] == True
     ansible.builtin.replace:
       path: /host/opt/xavier/root/.zshrc
       regexp: '(^ZSH_THEME=\")\S+(\")'
       replace: '\1powerlevel10k/powerlevel10k\2'
 
-  - name: Install/Update zsh-autosuggestions oh-my-zsh plugin
+  - name: Install/Update oh-my-zsh plugins
+    when: install['ohmyzsh'] == True
     ansible.builtin.git:
-      repo: https://github.com/zsh-users/zsh-autosuggestions.git
-      dest: /host/opt/xavier/root/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+      repo: '{{ item.repo }}'
+      dest: '/host/opt/xavier/root/.oh-my-zsh/custom/plugins/{{ item.path }}'
       single_branch: yes
       force: yes
       depth: 1
+    loop: '{{ ohmyzsh.plugins.custom }}'
 
-  - name: Install/Update zsh-syntax-highlighting oh-my-zsh plugin
-    ansible.builtin.git:
-      repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
-      dest: /host/opt/xavier/root/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-      single_branch: yes
-      force: yes
-      depth: 1
-
-  - name: Set oh-my-zsh plugins
+  - name: Enable oh-my-zsh plugins in .zshrc
+    when: install['ohmyzsh'] == True
     ansible.builtin.replace:
       path: /host/opt/xavier/root/.zshrc
       regexp: '(^plugins=\()\S+(\))'
-      replace: '\1git history-substring-search zsh-autosuggestions zsh-syntax-highlighting\2'
+      replace: '\1{{ ohmyzsh.plugins.enabled | join(" ") }}\2'
 
   - name: Copy host authorized_keys from ec2-user into Xavier System
     ansible.builtin.copy:
@@ -88,13 +93,42 @@
       group: root
       mode: 0755
 
-  - name: Install fake aws-cli script
+  - name: Copy xv.example.yaml file to sources directory (no overwrite)
+    ansible.builtin.copy:
+      src: /host/opt/xavier/system/xv.example.yaml
+      dest: /host/opt/xavier/sources/xv.yaml
+      force: no
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Install aws-cli container wrapper
     ansible.builtin.copy:
       src: /host/opt/xavier/system/tools/scripts/aws
       dest: /host/opt/xavier/root/bin/aws
       owner: root
       group: root
       mode: 0755
+
+  - name: Install example sources
+    when: install['examples']['sources'] != []
+    ansible.builtin.copy:
+      src: '/host/opt/xavier/system/examples/sources/{{ item }}'
+      dest: /host/opt/xavier/sources
+      owner: root
+      group: root
+      mode: 0755
+    loop: '{{ install.examples.sources }}'
+
+  - name: Install example scripts
+    when: install['examples']['tools']['scripts'] != []
+    ansible.builtin.copy:
+      src: '/host/opt/xavier/system/examples/tools/scripts/{{ item }}'
+      dest: '/host/opt/xavier/root/bin/{{ item }}'
+      owner: root
+      group: root
+      mode: 0755
+    loop: '{{ install.examples.tools.scripts }}'
 
   - name: Build xv container tool
     ansible.builtin.shell: chroot /host /bin/bash -c "docker build /opt/xavier/system/tools/xv/ -t xv"

@@ -1,0 +1,25 @@
+install:
+  ohmyzsh: True
+  powerlevel10k: True
+  examples:
+    sources:
+    - xv-utils
+    - cdk-base
+    tools:
+      scripts:
+      - eks-kubeconfig.sh
+      - get-kubectl.sh
+      - update-eksctl.sh
+
+ohmyzsh:
+  plugins:
+    enabled:
+    - git
+    - history-substring-search
+    - zsh-autosuggestions
+    - zsh-syntax-highlighting
+    custom:
+    - path: zsh-autosuggestions
+      repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    - path: zsh-syntax-highlighting
+      repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
