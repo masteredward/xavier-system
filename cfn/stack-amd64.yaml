@@ -14,7 +14,7 @@ Parameters:
     Default: "ssh-ed25519 ... first.last@email.com"
   AmiId:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
-    Default: "/aws/service/ami-amazon-linux-latest/al2022-ami-minimal-kernel-default-amd64"
+    Default: "/aws/service/ami-amazon-linux-latest/al2022-ami-minimal-kernel-default-x86_64"
   InstanceType:
     Type: "String"
     Default: "t3a.medium"
