@@ -5,13 +5,13 @@ Description: Deploy the Xavier System into an AWS account
 Parameters:
   XavierInstanceName:
     Type: "String"
-    Default: "my-xavier-system"
+    Default: "firstlast-xavier-system"
   OwnerEmail:
     Type: "String"
-    Default: "my@email.com"
+    Default: "first.last@email.com"
   SSHKey:
     Type: "String"
-    Default: "ssh-ed25519 ... my@email.com"
+    Default: "ssh-ed25519 ... first.last@email.com"
   AmiId:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
     Default: "/aws/service/ami-amazon-linux-latest/al2022-ami-minimal-kernel-default-arm64"
@@ -33,7 +33,7 @@ Parameters:
       #!/bin/bash
 
       ARCH="arm64"
-      AWS_REGION="us-east-1"
+      AWS_REGION="eu-west-1"
 
       dnf install -y https://s3.${AWS_REGION}.amazonaws.com/amazon-ssm-${AWS_REGION}/latest/linux_${ARCH}/amazon-ssm-agent.rpm
       systemctl enable amazon-ssm-agent --now

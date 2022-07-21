@@ -13,9 +13,6 @@ shared:
   - source: /opt/xavier/workspace
     target: /workspace
     mode: rw
-  - source: /root/.aws
-    target: /root/.aws
-    mode: rw
   # - source: /etc/gitconfig
   #   target: /etc/gitconfig
   #   mode: ro
@@ -26,7 +23,10 @@ containers:
     environment:
     - name: AWS_PROFILE
       value: myprofile
-    volumes: []
+    volumes:
+    - source: /root/.aws
+      target: /root/.aws
+      mode: ro
 
   xv-utils:
     ports: []
@@ -42,4 +42,7 @@ containers:
       mode: rw
     - source: /opt/xavier
       target: /xavier
+      mode: rw
+    - source: /root/.aws
+      target: /xavier/awsconfig
       mode: rw
