@@ -40,28 +40,36 @@
       group: root
       mode: 0644
 
-  - name: Install/Update powerlevel10k oh-my-zsh theme
+  - name: Set oh-my-zsh theme in .zshrc
     when:
     - install['ohmyzsh'] == True
-    - install['powerlevel10k'] == True
+    ansible.builtin.replace:
+      path: /host/opt/xavier/root/.zshrc
+      regexp: '(^ZSH_THEME=\")\S+(\")'
+      replace: '\1{{ ohmyzsh.theme.enabled }}\2'
+
+  - name: Set oh-my-zsh plugins in .zshrc
+    when: install['ohmyzsh'] == True
+    ansible.builtin.replace:
+      path: /host/opt/xavier/root/.zshrc
+      regexp: '(^plugins=\()\S+(\))'
+      replace: '\1{{ ohmyzsh.plugins.enabled | join(" ") }}\2'
+
+  - name: Install/Update oh-my-zsh custom theme
+    when:
+    - install['ohmyzsh'] == True
+    - ohmyzsh['theme']['custom'] != {}
     ansible.builtin.git:
-      repo: https://github.com/romkatv/powerlevel10k.git
-      dest: /host/opt/xavier/root/.oh-my-zsh/custom/themes/powerlevel10k
+      repo: '{{ ohmyzsh.theme.custom.repo }}'
+      dest: '/host/opt/xavier/root/.oh-my-zsh/custom/themes/{{ ohmyzsh.theme.custom.path }}'
       single_branch: yes
       force: yes
       depth: 1
 
-  - name: Set oh-my-zsh theme to powerlevel10k
+  - name: Install/Update oh-my-zsh custom plugins
     when:
     - install['ohmyzsh'] == True
-    - install['powerlevel10k'] == True
-    ansible.builtin.replace:
-      path: /host/opt/xavier/root/.zshrc
-      regexp: '(^ZSH_THEME=\")\S+(\")'
-      replace: '\1powerlevel10k/powerlevel10k\2'
-
-  - name: Install/Update oh-my-zsh plugins
-    when: install['ohmyzsh'] == True
+    - ohmyzsh['plugins']['custom'] != []
     ansible.builtin.git:
       repo: '{{ item.repo }}'
       dest: '/host/opt/xavier/root/.oh-my-zsh/custom/plugins/{{ item.path }}'
@@ -69,13 +77,6 @@
       force: yes
       depth: 1
     loop: '{{ ohmyzsh.plugins.custom }}'
-
-  - name: Enable oh-my-zsh plugins in .zshrc
-    when: install['ohmyzsh'] == True
-    ansible.builtin.replace:
-      path: /host/opt/xavier/root/.zshrc
-      regexp: '(^plugins=\()\S+(\))'
-      replace: '\1{{ ohmyzsh.plugins.enabled | join(" ") }}\2'
 
   - name: Copy host authorized_keys from ec2-user into Xavier System
     ansible.builtin.copy:

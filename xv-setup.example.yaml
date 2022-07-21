@@ -1,6 +1,5 @@
 install:
   ohmyzsh: True
-  powerlevel10k: True
   examples:
     sources:
     - xv-utils
@@ -23,3 +22,8 @@ ohmyzsh:
       repo: https://github.com/zsh-users/zsh-autosuggestions.git
     - path: zsh-syntax-highlighting
       repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+  theme:
+    enabled: powerlevel10k/powerlevel10k
+    custom:
+      path: powerlevel10k
+      repo: https://github.com/romkatv/powerlevel10k.git
