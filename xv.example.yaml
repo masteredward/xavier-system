@@ -13,6 +13,12 @@ shared:
   - source: /opt/xavier/workspace
     target: /workspace
     mode: rw
+  - source: /usr/bin/docker
+    target: /usr/bin/docker
+    mode: ro
+  - source: /var/run/docker.sock
+    target: /var/run/docker.sock
+    mode: rw
   # - source: /etc/gitconfig
   #   target: /etc/gitconfig
   #   mode: ro
@@ -34,12 +40,6 @@ containers:
     - name: POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD
       value: "true"
     volumes:
-    - source: /usr/bin/docker
-      target: /usr/bin/docker
-      mode: ro
-    - source: /var/run/docker.sock
-      target: /var/run/docker.sock
-      mode: rw
     - source: /opt/xavier
       target: /xavier
       mode: rw

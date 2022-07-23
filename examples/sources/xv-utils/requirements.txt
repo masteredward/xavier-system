@@ -1,4 +1,5 @@
 pylint
+cfn-lint
 boto3
 python_on_whales
 pyyaml
