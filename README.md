@@ -24,11 +24,11 @@ The default base distro image for **Xavier System** container builds is [Fedora 
 
 ## Deployment and Installation
 
-The default installation of the **Xavier System** bundles the Oh My ZSH framework with the [Powerlevel10k](https://github.com/romkatv/powerlevel10k) ZSH theme maintained by [Roman Perepelitsa](https://github.com/romkatv). The installation can be customized by creating the configuration file `xv-setup.yaml` file, modifying the bundled `xv-setup.example.yaml` file.
+The default installation of the **Xavier System** bundles the **Oh My ZSH** framework with the [Powerlevel10k](https://github.com/romkatv/powerlevel10k) ZSH theme maintained by [Roman Perepelitsa](https://github.com/romkatv). The installation can be customized by creating the configuration file `xv-setup.yaml` file, modifying the bundled `xv-setup.example.yaml` file.
 
-The installation customization allows the user to choose various Oh My ZSH plugins and themes, builtin or custom. Also, allows the user to avoid Oh My ZSH entirelly. It's installation uses the `xv-setup` container tool, which uses an [Ansible](https://www.ansible.com) playbook for both setup and updates.
+The installation customization allows the user to choose various **Oh My ZSH** plugins and themes, builtin or custom. Also, allows the user to avoid **Oh My ZSH** entirelly. It's installation uses the `xv-setup` container tool, which uses an [Ansible](https://www.ansible.com) playbook for both setup and updates.
 
-To automate the environment creation, the user can customize one of the bundled [AWS CloudFormation](https://aws.amazon.com/cloudformation) templates in the `cfn` directory, available for both AMD64 or ARM64 architetures.
+To automate the environment creation, the user can customize one of the bundled [AWS CloudFormation](https://aws.amazon.com/cloudformation) templates in the `cfn/` directory, available for both AMD64 (x86_64) or ARM64 (aarch64) architetures.
 
 The CloudFormation template uses the minimal [Amazon Linux 2022](https://aws.amazon.com/linux/amazon-linux-2022) AMI with it's default kernel. The **Amazon Linux 2022** is the latest version of Amazon Linux, now rebased to **Fedora**. AWS team is doing a terrific job on optimizing the **Amazon Linux 2022** distro. For this reason, **Amazon Linux 2022** is the default base distro for the **Xavier System** project. The base distro can be customized as well, but since it will be used only as base for Xavier containers, there is no much benefit here. Also, the `xv` utility container uses the official [Amazon Linux 2022 container image](https://hub.docker.com/_/amazonlinux/) as base too.
 
