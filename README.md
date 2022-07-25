@@ -1,6 +1,6 @@
 # Xavier System Project
 
-<div style="text-align:center"><img src="https://raw.githubusercontent.com/masteredward/xavier-system/master/img/professor_xavier.jpg" alt="logo" class="responsive" style="width: 50%; height: auto"></div>
+<p align="center"><img src="https://raw.githubusercontent.com/masteredward/xavier-system/master/img/professor_xavier.jpg" alt="logo" class="responsive" style="width: 50%; height: auto"></p>
 
 The Xavier System is a remote containerized development environment, which uses [Visual Studio Code](https://code.visualstudio.com), the [Remote - SSH](https://code.visualstudio.com/docs/remote/ssh) extension and an [AWS EC2](https://aws.amazon.com/aws/ec2) instance as backend. This project is sourced from the original [Xavier](https://github.com/masteredward/xavier) and the [aws-admin](https://github.com/masteredward/aws-admin) projects, now deprecated in favor of the **Xavier System**.
 
