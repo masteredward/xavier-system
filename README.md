@@ -2,19 +2,19 @@
 
 <p align="center"><img src="https://raw.githubusercontent.com/masteredward/xavier-system/master/img/professor_xavier.jpg" alt="logo" class="responsive" style="width: 50%; height: auto"></p>
 
-The Xavier System is a remote containerized development environment, which uses [Visual Studio Code](https://code.visualstudio.com), the [Remote - SSH](https://code.visualstudio.com/docs/remote/ssh) extension and an [AWS EC2](https://aws.amazon.com/aws/ec2) instance as backend. This project is sourced from the original [Xavier](https://github.com/masteredward/xavier) and the [aws-admin](https://github.com/masteredward/aws-admin) projects, now deprecated in favor of the **Xavier System**.
+The **Xavier System** is a remote containerized development environment, which uses [Visual Studio Code](https://code.visualstudio.com), the [Remote - SSH](https://code.visualstudio.com/docs/remote/ssh) extension and an [AWS EC2](https://aws.amazon.com/aws/ec2) instance as backend. This project is sourced from the original [Xavier](https://github.com/masteredward/xavier) and the [aws-admin](https://github.com/masteredward/aws-admin) projects, now deprecated in favor of the **Xavier System**.
 
 ## Introduction
 
-By taking advantage of Visual Studio Code features like SSH Agent forwarding and Environment Variable Inheritance, the Xavier System allows the user to enjoy a fully dynamic remote development enviromnent with the same benefits and ease of use as developing locally.
+By taking advantage of **Visual Studio Code** features like *SSH Agent forwarding* and *Environment Variable Inheritance*, the **Xavier System** allows the user to enjoy a *fully dynamic* remote development environment with the *same benefits and ease of use* as developing locally.
 
-The Xavier System is a "micro framework", which allows the user to manage a dynamic containerized environment to accomodate multiple projects in the same instance. The `xv` utility can mutate the whole development environment with a single command, using [Docker](https://www.docker.com) to build and deploy containers.
+The **Xavier System** is a "micro framework", which allows the user to manage a dynamic containerized environment to accomodate multiple projects in the same instance. The `xv` utility can mutate the whole development environment with a single command, using [Docker](https://www.docker.com) to build and deploy containers.
 
-Using Xavier System, the user can keep it's PC clean from resource demainding systems like Docker Desktop, Virtual Machines or WSL systems. All that the user needs, is Visual Studio Code, the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) utility, some custom shell functions and a [Nerd Font](https://github.com/ryanoasis/nerd-fonts) for the [Oh My ZSH](https://ohmyz.sh/) framework.
+Using **Xavier System**, the user can keep it's PC clean from resource demainding systems like *Docker Desktop, Virtual Machines or WSL systems*. All that the user needs, is **Visual Studio Code**, the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) utility, some custom shell functions and a [Nerd Font](https://github.com/ryanoasis/nerd-fonts) for the [Oh My ZSH](https://ohmyz.sh/) framework.
 
 ## Main Concepts
 
-The **Xavier System** uses the concept of "System Overlay". The "xv-container", in Xavier System's terminology, assumes the OS role. This is the core principle of the **Xavier System**. *Only a single container can assume the OS role at time*. If the user needs to change the running container, the `xv` tool will replace the running container with a new image. This way, there is always a single SSH server container running in the instance. This helps the user to save memory ans keep the system organized. The running container always assumes the name of `xv-container`.
+The **Xavier System** uses the concept of "System Overlay". The "xv-container", in **Xavier System's** terminology, assumes the OS role. This is the core principle of the **Xavier System**. *Only a single container can assume the OS role at time*. If the user needs to change the running container, the `xv` tool will replace the running container with a new image. This way, there is always a single SSH server container running in the instance. This helps the user to save memory ans keep the system organized. The running container always assumes the name of `xv-container`.
 
 The `xv` tool is the brain tool of the **Xavier System**. It builds and deploys the `xv-container` using the user's custom configuration in the `xv.yaml` file to setup container mounts, enviroments, ports and image building, similar to a [Docker Compose](https://docs.docker.com/compose) file. The advantage of `xv.yaml` is the shared configuration, with allows the user to set common mounts, environments or ports to all `xv-containers`.
 
@@ -206,7 +206,7 @@ The **Xavier System** uses a directory structure inside the `/opt/xavier` path. 
 
 - `workspace/` - This directory, by default, is mounted on all `xv-containers` in the `/workspace` directory. The goal of this directory is to store there all user's GIT repositories and/or temporary directories for testing between `xv-containers`.
 
-## xv tool
+## The xv tool
 
 The `xv` tool is quite simple. It's a containerized Python script that uses the [python-on-whales](https://github.com/gabrieldemarmiesse/python-on-whales) library maintained by [Gabriel de Marmiesse](https://github.com/gabrieldemarmiesse) to handle `xv-containers` builds and deployment. It must run as root (using sudo) and expects the name of the `xv-container` as argument. The example bellow will build `xv-utils` image and start it as the `xv-container`. If there is already a `xv-container` running, the `xv` tool will REPLACE it:
 
@@ -305,7 +305,7 @@ containers:
     volumes: []
 ```
 
-## xv-setup tool
+## The xv-setup tool
 
 TBA
 
