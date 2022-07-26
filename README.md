@@ -14,7 +14,9 @@ Using **Xavier System**, the user can keep it's PC clean from resource demaindin
 
 ## Main Concepts
 
-The **Xavier System** uses the concept of "System Overlay". The "xv-container", in **Xavier System's** terminology, assumes the OS role. This is the core principle of the **Xavier System**. *Only a single container can assume the OS role at time*. If the user needs to change the current `xv-container` to another one, the `xv` tool can build and deploy another `xv-contanier`, replacing the old one. This way, there is always a single `xv-container` running in the instance. This helps the user to not waste resources and keeping the system organized. The running container always assumes the name and hostname of `xv-container`.
+The **Xavier System** uses the concept of "System Overlay". The "xv-container", in **Xavier System's** terminology, assumes the OS role. This is the core principle of the **Xavier System**. *Only a single container can assume the OS role at time*. If the user needs to change the current `xv-container` to another one, the `xv` tool can build and deploy another `xv-container`, replacing the old one. This way, there is always a single `xv-container` running in the instance. This helps the user to not waste resources and keeping the system organized.
+
+The current `xv-container` running on the system always assumes the container name of "xv-container", but the image name and the container hostname receives the name of the **Dockerfile** project directory, for example, when using `xv-utils` source as the `xv-container`, the image name and the hostname is set to "xv-utils".
 
 The `xv` tool is the "brain" of the **Xavier System**. It builds and deploys the `xv-container` using the user's custom configuration in the `xv.yaml` file to setup container mounts, enviroment variables and ports, similar to a [Docker Compose](https://docs.docker.com/compose) file. The `xv.yaml` file also have the concept of a global shared configuration, with allows the user to set common mounts, environment variables or ports to all `xv-containers` lauched by the `xv` tool.
 
