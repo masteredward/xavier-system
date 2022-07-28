@@ -8,9 +8,9 @@ The **Xavier System** is a remote containerized development environment, which u
 
 By taking advantage of **Visual Studio Code** features like *SSH Agent forwarding* and *Environment Variable Inheritance*, the **Xavier System** allows the user to enjoy a *fully dynamic* remote development environment with the *same benefits and ease of use* as developing locally.
 
-The **Xavier System** is a "micro framework", which allows the user to manage a dynamic containerized environment to accomodate multiple projects in the same instance. The `xv` tools can mutate the whole development environment with a single command, using [Docker](https://www.docker.com) to build and deploy containers.
+The **Xavier System** is a "micro framework", which allows the user to manage a dynamic containerized environment to accommodate multiple projects in the same instance. The `xv` tools can mutate the whole development environment with a single command, using [Docker](https://www.docker.com) to build and deploy containers.
 
-Using **Xavier System**, the user can keep it's PC clean from resource demainding systems like *Docker Desktop, Virtual Machines or WSL systems*. All that the user needs, is **Visual Studio Code**, the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) utility, some custom shell functions and a [Nerd Font](https://github.com/ryanoasis/nerd-fonts) for the [Oh My ZSH](https://ohmyz.sh/) framework.
+Using **Xavier System**, the user can keep it's PC clean from resource demanding systems like *Docker Desktop, Virtual Machines or WSL systems*. All that the user needs, is **Visual Studio Code**, the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) utility, some custom shell functions and a [Nerd Font](https://github.com/ryanoasis/nerd-fonts) for the [Oh My ZSH](https://ohmyz.sh/) framework.
 
 ## Main Concepts
 
