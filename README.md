@@ -18,11 +18,11 @@ The **Xavier System** uses the concept of "System Overlay". The "xv-container", 
 
 The current `xv-container` running on the system always assumes the container name of "xv-container", but the image name and the container hostname receives the name of the **Dockerfile** project directory, for example, when using `xv-utils` source as the `xv-container`, the image name and the hostname is set to "xv-utils".
 
-The `xv` tool is the "brain" of the **Xavier System**. It builds and deploys the `xv-container` using the user's custom configuration in the `xv.yaml` file to setup container mounts, enviroment variables and ports, similar to a [Docker Compose](https://docs.docker.com/compose) file. The `xv.yaml` file also have the concept of a global shared configuration, with allows the user to set common mounts, environment variables or ports to all `xv-containers` lauched by the `xv` tool.
+The `xv` tool is the "brain" of the **Xavier System**. It builds and deploys the `xv-container` using the user's custom configuration in the `xv.yaml` file to setup container mounts, environment variables and ports, similar to a [Docker Compose](https://docs.docker.com/compose) file. The `xv.yaml` file also have the concept of a global shared configuration, with allows the user to set common mounts, environment variables or ports to all `xv-containers` launched by the `xv` tool.
 
-By default, any `xv-container` is supposed to bind it's OpenSSH service on the default port 22 *to the port 2222 on the instance's IPv4 localhost* (127.0.0.1). Using *AWS SSM tunneling* and the `xvpf` function, the user bind's a local port into the intance's localhost on port 2222. This is a *very secure practice*, since both the instance or the container doesn't need to listen to SSH connections from outsite AWS. No need for Public Subnets or Inbound Security Group Rules. Although, the **Xavier System** itself needs Internet access to download binaries and images. At least a **NAT Gateway** or a **proxy server** should be supplied for the **Xavier System** instance.
+By default, any `xv-container` is supposed to bind it's OpenSSH service on the default port 22 *to the port 2222 on the instance's IPv4 localhost* (127.0.0.1). Using *AWS SSM tunneling* and the `xvpf` function, the user bind's a local port into the instance's localhost on port 2222. This is a *very secure practice*, since both the instance or the container doesn't need to listen to SSH connections from outside AWS. No need for Public Subnets or Inbound Security Group Rules. Although, the **Xavier System** itself needs Internet access to download binaries and images. At least a **NAT Gateway** or a **proxy server** should be supplied for the **Xavier System** instance.
 
-The default base distro image for **Xavier System** container builds is [Fedora 36](https://docs.fedoraproject.org/en-US/fedora/latest/), although, the user can change the distro images to **Ubuntu**, **Debian** or any other distro in the **Dockerfiles**. But for that, some changes in the Dockefiles are necessary.
+The default base distro image for **Xavier System** container builds is [Fedora 36](https://docs.fedoraproject.org/en-US/fedora/latest/), although, the user can change the distro images to **Ubuntu**, **Debian** or any other distro in the **Dockerfiles**. But for that, some changes in the **Dockerfiles** are necessary.
 
 Note that **ALPINE IMAGES AREN'T SUPPORTED**. Alpine is a perfect distro for slim containers, but it uses [musl](https://en.wikipedia.org/wiki/Musl) instead of the standard [glibc](https://en.wikipedia.org/wiki/Glibc) used my most of Linux distros. Visual Studio Code SSH extension *isn't compatible with any non-glibc* distros. This information is mentioned in their documentation [here](https://code.visualstudio.com/docs/remote/ssh#_remote-ssh-limitations).
 
@@ -30,9 +30,9 @@ Note that **ALPINE IMAGES AREN'T SUPPORTED**. Alpine is a perfect distro for sli
 
 The default installation of the **Xavier System** bundles the **Oh My ZSH** framework with the [Powerlevel10k](https://github.com/romkatv/powerlevel10k) ZSH theme maintained by [Roman Perepelitsa](https://github.com/romkatv). The installation can be customized by creating the configuration file `xv-setup.yaml` file, using the `xv-setup.example.yaml` file as source. For more information, read "[The xv-setup tool](#the-xv-setup-tool)" section.
 
-The installation customization allows the user to choose various **Oh My ZSH** plugins and themes, builtin or custom. Also, allows the user to avoid **Oh My ZSH** entirelly. It's installation uses the `xv-setup` container tool, which uses an [Ansible](https://www.ansible.com) playbook for both setup and updates.
+The installation customization allows the user to choose various **Oh My ZSH** plugins and themes, built-in or custom. Also, allows the user to avoid **Oh My ZSH** entirely. It's installation uses the `xv-setup` container tool, which uses an [Ansible](https://www.ansible.com) playbook for both setup and updates.
 
-To automate the environment creation, the user can customize one of the bundled [AWS CloudFormation](https://aws.amazon.com/cloudformation) templates in the `cfn/` directory, available for both AMD64 (x86_64) or ARM64 (aarch64) architetures.
+To automate the environment creation, the user can customize one of the bundled [AWS CloudFormation](https://aws.amazon.com/cloudformation) templates in the `cfn/` directory, available for both AMD64 (x86_64) or ARM64 (aarch64) architectures.
 
 The CloudFormation template uses the minimal [Amazon Linux 2022](https://aws.amazon.com/linux/amazon-linux-2022) AMI with it's default kernel. The **Amazon Linux 2022** is the latest version of Amazon Linux, now rebased to **Fedora**. AWS team is doing a terrific job on optimizing the **Amazon Linux 2022** distro. For this reason, **Amazon Linux 2022** is the default base distro for the **Xavier System** project. The base distro can be customized as well, but since it will only be used as base for the Xavier System, there is no much benefit here. Also, the `xv` tool uses the official [Amazon Linux 2022 container image](https://hub.docker.com/_/amazonlinux/) as base too.
 
@@ -54,13 +54,13 @@ The CloudFormation template uses the minimal [Amazon Linux 2022](https://aws.ama
 
 4. Install and enable the **Remote - SSH** extension on your **Visual Studio Code** installation. For more information, refer [here](https://code.visualstudio.com/docs/remote/ssh).
 
-5. Generate an OpenSSH key pair for connecting to **Xavier System**, preferably using the **Ed25519** private key format, to generate a very secure key with a very small public key. You can use any other SSH key pair you alreavy have. The command bellow works in *any modern OS*, even **Windows 10+** using **Powershell**. Remmember to add a *secure passphrase* to your key.
+5. Generate an OpenSSH key pair for connecting to **Xavier System**, preferably using the **Ed25519** private key format, to generate a very secure key with a very small public key. You can use any other SSH key pair you already have. The command bellow works in *any modern OS*, even **Windows 10+** using **Powershell**. Remember to add a *secure passphrase* to your key.
 
     ```console
     ssh-keygen -t ed25519 -i ~/.ssh/firstlast-xavier-system -C first.last@email.com
     ```
 
-6. Create and/or add the following configuration to the OpenSSH file `~/.ssh/config`. Since server keys will change contantly, I recommend adding the `StrictHostKeyChecking no` option and setting the `UserKnownHostsFile` to **NULL**:
+6. Create and/or add the following configuration to the OpenSSH file `~/.ssh/config`. Since server keys will change constantly, I recommend adding the `StrictHostKeyChecking no` option and setting the `UserKnownHostsFile` to **NULL**:
 
     ```text
     Host xavier
@@ -146,7 +146,7 @@ The CloudFormation template uses the minimal [Amazon Linux 2022](https://aws.ama
 
 ### Step 2: Xavier System Deployment
 
-1. Create a **AWS Cloudformation** stack by modifying one of the templates in the `cfn` directory. *Modify the default values* to customize the setup. The `stack-arm64.yaml` deploys a Graviton2 ARM64 `t4g.medium` Instance by default. The `stack-amd64.yaml` deploys an AMD x86 `t3a.medium` Instance by default. ARM instances are *slighty cheaper and faster* than it's x86 counterparts. I suggest you to use ARM instead of x86, unless your're using applications and packages that are unavailable for ARM.
+1. Create a **AWS CloudFormation** stack by modifying one of the templates in the `cfn` directory. *Modify the default values* to customize the setup. The `stack-arm64.yaml` deploys a Graviton2 ARM64 `t4g.medium` Instance by default. The `stack-amd64.yaml` deploys an AMD x86 `t3a.medium` Instance by default. ARM instances are *slightly cheaper and faster* than it's x86 counterparts. I suggest you to use ARM instead of x86, unless you're using applications and packages that are unavailable for ARM.
 
     ```console
     aws cloudformation deploy --stack-name my-xavier-system --template-file stack-arm64.yaml --capabilities CAPABILITY_NAMED_IAM
@@ -166,7 +166,7 @@ The CloudFormation template uses the minimal [Amazon Linux 2022](https://aws.ama
     # cd /opt/xavier/system
     ```
 
-4. Start the Xavier System installation by running the `./xv-setup.sh` script. If you wanto to customize the setup, copy the `xv-setup.example.yaml` file into the `xv-setup.yaml` file, then edit it's contents. Then run `./xv-setup.sh`.
+4. Start the Xavier System installation by running the `./xv-setup.sh` script. If you want to customize the setup, copy the `xv-setup.example.yaml` file into the `xv-setup.yaml` file, then edit it's contents. Then run `./xv-setup.sh`.
 
 5. The installation can take some minutes to complete. Enjoy the moment to grab a coffee.
 
@@ -364,7 +364,7 @@ ohmyzsh:
 
 ## Creating xv-containers using xv-utils
 
-Creating `xv-containers` needs that the user have some familiarity with Dockerfiles and container building.
+Creating `xv-containers` needs that the user have some familiarity with **Dockerfiles** and container building.
 
 By connecting to `xv-utils`, the user needs to create a new directory under `/xavier/sources/`.
 
@@ -474,7 +474,7 @@ eks-kubeconfig.sh my-eks-cluster
 
 This is an utility script that deals with the `kubectl` versioning issues. `kubectl` can only supports Kubernetes clusters with the same version, one earlier or one later. For example: `kubectl` for Kubernetes 1.21 can only support Kubernetes clusters from 1.20-1.22.
 
-By passing a Kubernetes version to this script as argument, it will download the official `kubectl` binary from AWS for the correct system archtecture and install it on `/root/bin/` directory, replacing any version already there. Example:
+By passing a Kubernetes version to this script as argument, it will download the official `kubectl` binary from AWS for the correct system architecture and install it on `/root/bin/` directory, replacing any version already there. Example:
 
 ```console
 get-kubectl.sh 1.22
@@ -482,7 +482,7 @@ get-kubectl.sh 1.22
 
 ### update-eksctl.sh
 
-This is a simple script that downloads the most recent version of the `eksctl` tool into the `/root/bin/` directory. Like the `get-kubectl.sh` script, it detects the system archtecture and download the proper binary. No arguments needed.
+This is a simple script that downloads the most recent version of the `eksctl` tool into the `/root/bin/` directory. Like the `get-kubectl.sh` script, it detects the system architecture and download the proper binary. No arguments needed.
 
 ## Contributions and Issues
 
