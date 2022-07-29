@@ -190,11 +190,11 @@ The CloudFormation template uses the minimal [Amazon Linux 2022](https://aws.ama
     code --remote ssh-remote+xavier /xavier
     ```
 
-9. The `xv-utils` container have access to all **Xavier System** files. It can be used to *create/edit Dockerfiles*, the `source/xv.yaml` file or to make tweaks on the Xavier System directory `system`. For more information on `xv-utils`, read [Creating xv-containers using xv-utils](#creating-xv-containers-using-xv-utils).
+9. The `xv-utils` container have access to all **Xavier System** files. It can be used to *create/edit Dockerfiles*, the `source/xv.yaml` file or to make tweaks on the Xavier System directory `system`. For more information on how to configure `xv.yaml`, read [Configuring xv-containers](#configuring-xv-containers).
 
 10. If you installed Xavier System with **Oh My ZSH** and the **Powerlevel10k** theme, run the `p10k configure` utility from **Visual Studio Code** *Integrated Terminal* to customize the theme.
 
-11. Go to the `/xavier/sources` directory and start designing your containers! Time for some fun!
+11. Go to the `/xavier/sources` directory and start designing your containers. You can use the included examples in the directory `/xavier/system/examples/sources` as base. For more information on building custom `xv-containers` using the `xv-utils` tool, read [Creating xv-containers using xv-utils](#creating-xv-containers-using-xv-utils).
 
 ## Xavier System Directory Structure
 
@@ -366,51 +366,54 @@ ohmyzsh:
 
 Creating `xv-containers` needs that the user have some familiarity with **Dockerfiles** and container building.
 
-By connecting to `xv-utils`, the user needs to create a new directory under `/xavier/sources/`.
+### Generic xv-container example
 
-For future releases of the **Xavier System**, it's planned to add a new tool (xv-make.sh) to help the user to bootstrap new sources easily. For now, the process is basically copy one of the existing examples and modify it.
+The first step is to give a new name and a purpose to the new `xv-container`. Let's call it `git-manager`. The purpose of this one is manage GIT repositories.
 
-For example, to create the source with the name `eks-hero`:
+The second step is to add a new entry to the `/xavier/sources/xv.yaml` file for the `git-manager`:
+
+```yaml
+...
+containers:
+  ...
+  git-manager:
+    ports: []
+    environment: []
+    volumes: []
+```
+
+Since the `git-manager` `xv-container` don't need any extra ports, environments or volumes, we can just add empty lists to it.
+
+The next step is to create a new directory in the `/xavier/sources` directory. To save us from the trouble of creating everything from the scratch, we can use the base source examples located in `/xavier/system/examples/sources`. There are 2 example sources included there: `fedora-base` for bootstrapping new Fedora sources and `ubuntu-debian-base` for bootstrapping new Debian or Ubuntu sources.
+
+Let's say the `git-manager` will be a **Debian 10** `xv-container`. Let's copy the `/xavier/system/examples/sources/ubuntu-debian-base` directory to `/xavier/sources/git-manager`:
 
 ```console
-mkdir /xavier/sources/eks-hero
+cp -r /xavier/system/examples/sources/ubuntu-debian-base /xavier/sources/git-manager
 ```
 
-Then, create a `/xavier/sources/eks-hero/Dockerfile` similar to this one:
+On the `git-manager` **Dockerfile** we need to make a few changes. Most of it already fulfil our purposes. It already have `git` and `openssh-client` packages listed for build and the proper `sshd` configuration. We need tp modify the base image to `FROM debian:10-slim`. For that, open the **Dockerfile** and replace the first line:
 
 ```dockerfile
-FROM fedora:36
-
-RUN dnf install -y \
-  git \
-  helm \
-  jq \
-  passwd \
-  openssh-clients \
-  openssh-server \
-  shadow-utils \
-  zsh \
-  && dnf clean all
-
-RUN ssh-keygen -A && passwd -d root \
-  && printf "\nPasswordAuthentication no\nPermitUserEnvironment yes\n" >> /etc/ssh/sshd_config
-
-RUN usermod -s /usr/bin/zsh root
-
-COPY /entrypoint.sh /entrypoint.sh
-
-RUN chmod +x /entrypoint.sh
-
-EXPOSE 22
-
-ENTRYPOINT ["/entrypoint.sh"]
-
-CMD /usr/sbin/sshd -De
+FROM debian:10-slim
+...
 ```
 
-Then copy the `entrypoint.sh` from either `xv-utils` or `cdk-base` to `eks-hero` directory.
+Now the `git-manager` source is ready to become a `xv-container`. Close the remote **Visual Studio Code** window and run `xvcmd "sudo xv git-manager"` in local terminal. The `xv` tool will build the `git-manager` source and deploy it as the `xv-container` afterwards. Open a new remote **Visual Studio Code** window using:
 
-Add a new entry in the `xv.yaml` under "containers" similar to the following:
+```console
+code --remote ssh-remote+xavier /workspace
+```
+
+After connecting the remote `xavier` instance, open the integrated terminal. You can clone or create GIT repositories in the `/workspace` directory.
+
+### Specific xv-container example
+
+This second tutorial is an example of a `xv-container` with a very specific purpose: Manage an [AWS EKS](https://aws.amazon.com/eks/) cluster. Let's call this source `eks-hero`. In this example, the EKS cluster is allowing only a specific IAM role to access it's API. In this case, you need a specific profile configured on the `/xavier/awsconfig/config` file (This is a bind mount for the `/root/.aws` directory in the host OS).
+
+To properly configure an **AWS CLI** profile to assume a specific role, refer to [this](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html) link.
+
+Let's say we created the profile `eks_dev` for this purpose. Let's add the `eks-hero` source to the `/xavier/sources/xv.yaml` file:
 
 ```yaml
 ...
@@ -420,17 +423,38 @@ containers:
     ports: []
     environment:
     - name: AWS_PROFILE
-      value: profile_with_eks_cluster_access
+      value: eks_dev
     volumes: []
 ```
 
-Save the file. To build and set `eks-hero` as the new `xv-container`, from the local computer run:
+For the base source, let's use the `fedora-base` source to build a **Fedora 36** `xv-container`:
 
 ```console
-xvcmd "sudo xv eks-hero"
+cp -r /xavier/system/examples/sources/fedora-base /xavier/sources/eks-hero
 ```
 
-After the command is complete, next time you connect into Xavier System, you will be using `eks-hero`. To switch back to `xv-utils` just repeat the command above replacing `eks-hero` to `xv-utils`.
+Let's add the `helm` and `jq` packages to help us to deploy **Charts** and to parse **JSON** files easily:
+
+```dockerfile
+FROM fedora:36
+
+RUN dnf update -y \
+  && dnf install -y \
+    git \
+    helm \ # Added
+    jq \ # Added
+    passwd \
+    openssh-clients \
+    openssh-server \
+    shadow-utils \
+    zsh \
+  && dnf clean all
+...
+```
+
+Save the **Dockerfile**, close the remote **Visual Studio Code** window and run `xvcmd "sudo xv eks-hero"`. Let's open the remote **Visual Studio Code** using `code --remote ssh-remote+xavier /workspace`.
+
+Now you can use the helper script tools [eks-kubeconfig.sh](#eks-kubeconfig-sh), [get-kubectl.sh](#get-kubectl-sh) and [update-eksctl.sh](#update-eksctl-sh) to proper configure the `kubeconfig`, download the desired `kubectl` client version and to install/update `eksctl`.
 
 ## The "fake" aws script
 

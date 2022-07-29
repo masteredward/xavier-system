@@ -1,13 +1,14 @@
 FROM fedora:36
 
-RUN dnf install -y \
-  git \
-  npm \
-  passwd \
-  openssh-clients \
-  openssh-server \
-  shadow-utils \
-  zsh \
+RUN dnf update -y \
+  && dnf install -y \
+    git \
+    npm \
+    passwd \
+    openssh-clients \
+    openssh-server \
+    shadow-utils \
+    zsh \
   && dnf clean all
 
 COPY /requirements.txt /tmp/requirements.txt
