@@ -24,7 +24,7 @@ By default, any `xv-container` is supposed to bind it's OpenSSH service on the d
 
 The default base distro image used by **Xavier System** sources is [Fedora 36](https://docs.fedoraproject.org/en-US/fedora/latest/), although, the user can change the distro in the **Dockerfiles** to **Ubuntu** or **Debian**, by commenting/uncommenting code for the `xv-utils` and the `cdk-base` **Dockerfiles**.
 
-Note that **ALPINE IMAGES AREN'T SUPPORTED**. Alpine is a perfect distro for slim containers, but it uses [musl](https://en.wikipedia.org/wiki/Musl) instead of the standard [glibc](https://en.wikipedia.org/wiki/Glibc) used my most of Linux distros. Visual Studio Code SSH extension *isn't compatible with any non-glibc* distros. This information is mentioned in their documentation [here](https://code.visualstudio.com/docs/remote/ssh#_remote-ssh-limitations).
+Note that **ALPINE IMAGES AREN'T SUPPORTED**. Alpine is a perfect distro for slim containers, but it uses [musl](https://en.wikipedia.org/wiki/Musl) instead of the standard [glibc](https://en.wikipedia.org/wiki/Glibc) like most of the Linux distros. **Visual Studio Code** Remote - SSH extension *isn't compatible with any non-glibc* distros. This information is mentioned [here](https://code.visualstudio.com/docs/remote/ssh#_remote-ssh-limitations).
 
 ## Deployment and Installation
 
