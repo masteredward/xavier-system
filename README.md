@@ -10,7 +10,7 @@ By taking advantage of **Visual Studio Code** features like *SSH Agent forwardin
 
 The **Xavier System** is a "micro framework", which allows the user to manage a dynamic containerized environment to accommodate multiple projects in the same instance. The `xv` tools can mutate the whole development environment with a single command, using [Docker](https://www.docker.com) to build and deploy containers.
 
-Using **Xavier System**, the user can keep it's PC clean from resource demanding systems like *Docker Desktop, Virtual Machines or WSL systems*. All that the user needs, is **Visual Studio Code**, the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) utility, some custom shell functions and a [Nerd Font](https://github.com/ryanoasis/nerd-fonts) for the [Oh My ZSH](https://ohmyz.sh/) framework.
+Using **Xavier System**, the user can keep it's PC clean from resource demanding systems like *Docker Desktop, Virtual Machines or WSL systems*. All that the user needs, is **Visual Studio Code**, the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) utility with the [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html), some custom shell functions and a [Nerd Font](https://github.com/ryanoasis/nerd-fonts) for the [Oh My ZSH](https://ohmyz.sh/) framework.
 
 ## Main Concepts
 
@@ -22,7 +22,7 @@ The `xv` tool is the "brain" of the **Xavier System**. It builds and deploys the
 
 By default, any `xv-container` is supposed to bind it's OpenSSH service on the default port 22 *to the port 2222 on the instance's IPv4 localhost* (127.0.0.1). Using *AWS SSM tunneling* and the `xvpf` function, the user bind's a local port into the instance's localhost on port 2222. This is a *very secure practice*, since both the instance or the container doesn't need to listen to SSH connections from outside AWS. No need for Public Subnets or Inbound Security Group Rules. Although, the **Xavier System** itself needs Internet access to download binaries and images. At least a **NAT Gateway** or a **proxy server** should be supplied for the **Xavier System** instance.
 
-The default base distro image for **Xavier System** container builds is [Fedora 36](https://docs.fedoraproject.org/en-US/fedora/latest/), although, the user can change the distro images to **Ubuntu**, **Debian** or any other distro in the **Dockerfiles**. But for that, some changes in the **Dockerfiles** are necessary.
+The default base distro image used by **Xavier System** sources is [Fedora 36](https://docs.fedoraproject.org/en-US/fedora/latest/), although, the user can change the distro in the **Dockerfiles** to **Ubuntu** or **Debian**, by commenting/uncommenting code for the `xv-utils` and the `cdk-base` **Dockerfiles**.
 
 Note that **ALPINE IMAGES AREN'T SUPPORTED**. Alpine is a perfect distro for slim containers, but it uses [musl](https://en.wikipedia.org/wiki/Musl) instead of the standard [glibc](https://en.wikipedia.org/wiki/Glibc) used my most of Linux distros. Visual Studio Code SSH extension *isn't compatible with any non-glibc* distros. This information is mentioned in their documentation [here](https://code.visualstudio.com/docs/remote/ssh#_remote-ssh-limitations).
 
@@ -76,7 +76,7 @@ The CloudFormation template uses the minimal [Amazon Linux 2022](https://aws.ama
         UserKnownHostsFile /dev/null
     ```
 
-7. Install and configure the **AWS CLI v2** utility. It will allow you to deploy and to connect to your EC2 instance. Follow the documentation [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html). Use `aws sts get-caller-identity` command to test the AWS CLI v2 installation and configuration
+7. Install and configure the **AWS CLI v2** utility and the **Session Manager plugin**. They will allow you to deploy and to connect to your EC2 instance using the *AWS SSM Session Manager*. Follow the documentation [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) for the CLI and [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) for the plugin. Use `aws sts get-caller-identity` command to test the **AWS CLI v2** installation and configuration.
 
 8. Configure `xv*` helper functions to interact with your Xavier System. The Xavier System relies on the usage of [AWS SSM Documents](https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-ssm-docs.html) to bind local and remote ports on the EC2 instance in a very secure way. You don't need to add any specific value to the `InstanceId` variable now. After the CloudFormation stack is deployed, you can retrieve the *EC2 Instance ID*.
 
@@ -507,6 +507,16 @@ get-kubectl.sh 1.22
 ### update-eksctl.sh
 
 This is a simple script that downloads the most recent version of the `eksctl` tool into the `/root/bin/` directory. Like the `get-kubectl.sh` script, it detects the system architecture and download the proper binary. No arguments needed.
+
+## Known Issues
+
+### Windows SSH Agent is not working
+
+By default, the **OpenSSH Authentication Agent** service is disabled in Windows. It can enabled through the `services.msc` console or using **Powershell** as admin:
+
+```powershell
+Get-Service ssh-agent | Set-Service -StartupType Automatic -PassThru | Start-Service
+```
 
 ## Contributions and Issues
 
