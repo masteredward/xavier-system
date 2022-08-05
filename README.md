@@ -454,7 +454,7 @@ RUN dnf update -y \
 
 Save the **Dockerfile**, close the remote **Visual Studio Code** window and run `xvcmd "sudo xv eks-hero"`. Let's open the remote **Visual Studio Code** using `code --remote ssh-remote+xavier /workspace`.
 
-Now you can use the helper script tools [eks-kubeconfig.sh](#eks-kubeconfig-sh), [get-kubectl.sh](#get-kubectl-sh) and [update-eksctl.sh](#update-eksctl-sh) to proper configure the `kubeconfig`, download the desired `kubectl` client version and to install/update `eksctl`.
+Now you can use the helper script tools [eks-kubeconfig.sh](#eks-kubeconfigsh), [get-kubectl.sh](#get-kubectlsh) and [update-eksctl.sh](#update-eksctlsh) to proper configure the `kubeconfig`, download the desired `kubectl` client version and to install/update `eksctl`.
 
 ## The "fake" aws script
 
