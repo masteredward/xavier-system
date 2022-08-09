@@ -133,3 +133,8 @@
 
   - name: Build xv container tool
     ansible.builtin.shell: chroot /host /bin/bash -c "docker build /opt/xavier/system/tools/xv/ -t xv"
+  
+  - name: Install Homebrew
+    when:
+    - install['homebrew'] == True
+    ansible.builtin.shell: chroot /host /bin/bash -c "/opt/xavier/system/tools/homebrew-installer/install.sh"

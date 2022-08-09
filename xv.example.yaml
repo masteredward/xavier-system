@@ -10,6 +10,9 @@ shared:
   - source: /opt/xavier/root
     target: /root
     mode: rw
+  # - source: /opt/xavier/homebrew
+  #   target: /home/linuxbrew
+  #   mode: rw
   - source: /opt/xavier/workspace
     target: /workspace
     mode: rw
@@ -19,9 +22,6 @@ shared:
   - source: /var/run/docker.sock
     target: /var/run/docker.sock
     mode: rw
-  # - source: /etc/gitconfig
-  #   target: /etc/gitconfig
-  #   mode: ro
 
 containers:
   cdk-base:
