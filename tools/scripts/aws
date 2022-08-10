@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker run --rm -it -v /root/.aws:/root/.aws -e AWS_PROFILE=${AWS_PROFILE} amazon/aws-cli ${@}
+docker run --rm -it -v /root/.aws:/root/.aws -e AWS_PAGER="" -e AWS_PROFILE=${AWS_PROFILE} amazon/aws-cli ${@}

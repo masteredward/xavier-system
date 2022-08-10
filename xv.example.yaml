@@ -10,9 +10,6 @@ shared:
   - source: /opt/xavier/root
     target: /root
     mode: rw
-  # - source: /opt/xavier/homebrew
-  #   target: /home/linuxbrew
-  #   mode: rw
   - source: /opt/xavier/workspace
     target: /workspace
     mode: rw
@@ -45,4 +42,10 @@ containers:
       mode: rw
     - source: /root/.aws
       target: /xavier/awsconfig
+      mode: rw
+    - source: /opt/xavier/linuxbrew
+      target: /home/linuxbrew
+      mode: rw
+    - source: /
+      target: /host
       mode: rw

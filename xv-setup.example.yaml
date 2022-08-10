@@ -1,6 +1,6 @@
 install:
   ohmyzsh: True
-  # homebrew: True
+  homebrew: True
   examples:
     sources:
     - xv-utils

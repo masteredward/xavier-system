@@ -22,9 +22,13 @@ The `xv` tool is the "brain" of the **Xavier System**. It builds and deploys the
 
 By default, any `xv-container` is supposed to bind it's OpenSSH service on the default port 22 *to the port 2222 on the instance's IPv4 localhost* (127.0.0.1). Using *AWS SSM tunneling* and the `xvpf` function, the user bind's a local port into the instance's localhost on port 2222. This is a *very secure practice*, since both the instance or the container doesn't need to listen to SSH connections from outside AWS. No need for Public Subnets or Inbound Security Group Rules. Although, the **Xavier System** itself needs Internet access to download binaries and images. At least a **NAT Gateway** or a **proxy server** should be supplied for the **Xavier System** instance.
 
-The default base distro image used by **Xavier System** sources is [Fedora 36](https://docs.fedoraproject.org/en-US/fedora/latest/), although, the user can change the distro in the **Dockerfiles** to **Ubuntu** or **Debian**, by commenting/uncommenting code for the `xv-utils` and the `cdk-base` **Dockerfiles**.
+The default base distro image used by **Xavier System** sources is [Debian Sid](https://www.debian.org/releases/sid/) slim (minimal) version, although, the user can change the distro in the **Dockerfiles** manually.
+
+**Debian Sid** or *"Unstable"* it's a testing grounds for **Debian** community developers, and shouldn't be used by any production server. Since the main role of the **Xavier System** is development and testing, having access to the latest packages that the **Debian** team have to offer is a great advantage.
 
 Note that **ALPINE IMAGES AREN'T SUPPORTED**. Alpine is a perfect distro for slim containers, but it uses [musl](https://en.wikipedia.org/wiki/Musl) instead of the standard [glibc](https://en.wikipedia.org/wiki/Glibc) like most of the Linux distros. **Visual Studio Code** Remote - SSH extension *isn't compatible with any non-glibc* distros. This information is mentioned [here](https://code.visualstudio.com/docs/remote/ssh#_remote-ssh-limitations).
+
+The version *0.2.0* of **Xavier System** added [Homebrew](https://brew.sh/) integration. But since **Homebrew** don't properly support **ARM64**, this integration only works with **AMD64** instances, like the **t3a**.
 
 ## Deployment and Installation
 
@@ -146,10 +150,10 @@ The CloudFormation template uses the minimal [Amazon Linux 2022](https://aws.ama
 
 ### Step 2: Xavier System Deployment
 
-1. Create a **AWS CloudFormation** stack by modifying one of the templates in the `cfn` directory. *Modify the default values* to customize the setup. The `stack-arm64.yaml` deploys a Graviton2 ARM64 `t4g.medium` Instance by default. The `stack-amd64.yaml` deploys an AMD x86 `t3a.medium` Instance by default. ARM instances are *slightly cheaper and faster* than it's x86 counterparts. I suggest you to use ARM instead of x86, unless you're using applications and packages that are unavailable for ARM.
+1. Create a **AWS CloudFormation** stack by modifying one of the templates in the `cfn` directory. *Modify the default values* to customize the setup. The `stack-arm64.yaml` deploys a Graviton2 ARM64 `t4g.medium` Instance by default. The `stack-amd64.yaml` deploys an AMD x86 `t3a.medium` Instance by default. ARM instances are *slightly cheaper and faster* than it's x86 counterparts but doesn't support **Homebrew** properly. If you're not planning to use **Homebrew**, I suggest you to use ARM instead of x86, unless you're using applications and packages that are unavailable for ARM.
 
     ```console
-    aws cloudformation deploy --stack-name my-xavier-system --template-file stack-arm64.yaml --capabilities CAPABILITY_NAMED_IAM
+    aws cloudformation deploy --stack-name my-xavier-system --template-file stack-amd64.yaml --capabilities CAPABILITY_NAMED_IAM
     ```
 
 2. After the deploy is finished, you can retrieve the Xavier System instance ID to update the `InstanceId` variable for the functions.
@@ -287,7 +291,14 @@ containers:
     - source: /root/.aws
       target: /xavier/awsconfig
       mode: rw
-
+      # Adding this mount will enable the usage of Homebrew for the xv-container
+    - source: /opt/xavier/linuxbrew
+      target: /home/linuxbrew
+      mode: rw
+      # This is a potentially dangerous mount, it exposes the host's "/" to the "/host" directory. For a management xv-container like xv-utils, this is quite useful.
+    - source: /
+      target: /host
+      mode: rw
   # New container example:
   # The user must create a new subdirectory under "sources/" with the same name here.
   # In this case, the directory "sources/eks-hero/" needs to be created with a Dockerfile inside.
@@ -300,10 +311,21 @@ containers:
     environment:
     - name: AWS_PROFILE
       value: profile_with_eks_cluster_access
-    volumes: []
+      volumes: []
+    - source: /opt/xavier/linuxbrew
+      target: /home/linuxbrew
+      mode: rw
 
   # Minimal config
-  simple-container:
+  simple-container-with-homebrew:
+    ports: []
+    environment: []
+    volumes:
+    - source: /opt/xavier/linuxbrew
+      target: /home/linuxbrew
+      mode: rw
+
+  simple-container-without-homebrew:
     ports: []
     environment: []
     volumes: []
@@ -328,6 +350,8 @@ The default `xv-setup.yaml` file:
 install:
   # Change to False here to disable Oh My ZSH installation
   ohmyzsh: True
+  # Change this to false to disable Homebrew installation
+  homebrew: True
   examples:
     # By default, all example sources will be installed
     sources:
@@ -379,23 +403,44 @@ containers:
   git-manager:
     ports: []
     environment: []
-    volumes: []
+    volumes:
+      # With Homebrew support
+    - source: /opt/xavier/linuxbrew
+      target: /home/linuxbrew
+      mode: rw
 ```
 
 Since the `git-manager` `xv-container` don't need any extra ports, environments or volumes, we can just add empty lists to it.
 
-The next step is to create a new directory in the `/xavier/sources` directory. To save us from the trouble of creating everything from the scratch, we can use the base source examples located in `/xavier/system/examples/sources`. There are 2 example sources included there: `fedora-base` for bootstrapping new Fedora sources and `ubuntu-debian-base` for bootstrapping new Debian or Ubuntu sources.
+The next step is to create a new directory in the `/xavier/sources` directory. To save us from the trouble of creating everything from the scratch, we can use the base source examples located in `/xavier/system/examples/sources`. There are 2 example sources included there: `xv-container-base` for bootstrapping new **Debian Sid** sources without **Homebrew** support and `xv-container-base-brew` for bootstrapping a new source with it.
 
-Let's say the `git-manager` will be a **Debian 10** `xv-container`. Let's copy the `/xavier/system/examples/sources/ubuntu-debian-base` directory to `/xavier/sources/git-manager`:
+Let's say the `git-manager` will support **Homebrew**. Let's copy the `/xavier/system/examples/sources/xv-container-base-brew` directory to `/xavier/sources/git-manager`:
 
 ```console
-cp -r /xavier/system/examples/sources/ubuntu-debian-base /xavier/sources/git-manager
+cp -r /xavier/system/examples/sources/xv-container-base-brew /xavier/sources/git-manager
 ```
 
-On the `git-manager` **Dockerfile** we need to make a few changes. Most of it already fulfil our purposes. It already have `git` and `openssh-client` packages listed for build and the proper `sshd` configuration. We need tp modify the base image to `FROM debian:10-slim`. For that, open the **Dockerfile** and replace the first line:
+On the `git-manager` **Dockerfile** we can add more packages. For example, we want to add `vim` and `jq` to the installation. It already have `git` and `openssh-client` packages listed for build and the proper `sshd` configuration. We need to modify the **Dockerfile**. For that, open the **Dockerfile** and add the missing packages:
 
 ```dockerfile
-FROM debian:10-slim
+FROM debian:sid-slim
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt update \
+  && apt full-upgrade -y \
+  && apt install -y \
+    build-essential \
+    curl \
+    file \
+    git \
+    jq \ # Added
+    openssh-client \
+    openssh-server \
+    procps \
+    vim \ # Added
+    zsh \
+  && rm -rf /var/lib/apt/lists/*
 ...
 ```
 
@@ -407,54 +452,32 @@ code --remote ssh-remote+xavier /workspace
 
 After connecting the remote `xavier` instance, open the integrated terminal. You can clone or create GIT repositories in the `/workspace` directory.
 
-### Specific xv-container example
+## Using Homebrew
 
-This second tutorial is an example of a `xv-container` with a very specific purpose: Manage an [AWS EKS](https://aws.amazon.com/eks/) cluster. Let's call this source `eks-hero`. In this example, the EKS cluster is allowing only a specific IAM role to access it's API. In this case, you need a specific profile configured on the `/xavier/awsconfig/config` file (This is a bind mount for the `/root/.aws` directory in the host OS).
-
-To properly configure an **AWS CLI** profile to assume a specific role, refer to [this](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html) link.
-
-Let's say we created the profile `eks_dev` for this purpose. Let's add the `eks-hero` source to the `/xavier/sources/xv.yaml` file:
-
-```yaml
-...
-containers:
-  ...
-  eks-hero:
-    ports: []
-    environment:
-    - name: AWS_PROFILE
-      value: eks_dev
-    volumes: []
-```
-
-For the base source, let's use the `fedora-base` source to build a **Fedora 36** `xv-container`:
+Homebrew have some limitations and don't support running as `root`. To use the `brew` command, we need to change to the special **Homebrew** user `linuxbrew`:
 
 ```console
-cp -r /xavier/system/examples/sources/fedora-base /xavier/sources/eks-hero
+su - linuxbrew
 ```
 
-Let's add the `helm` and `jq` packages to help us to deploy **Charts** and to parse **JSON** files easily:
+After changing to the `linuxbrew` user, you can run `brew` commands normally. You can, for example, install **Python 3.10** and enable it globally using `brew link`. In this example, let's install **Python 3.10** as `linuxbrew`:
 
-```dockerfile
-FROM fedora:36
-
-RUN dnf update -y \
-  && dnf install -y \
-    git \
-    helm \ # Added
-    jq \ # Added
-    passwd \
-    openssh-clients \
-    openssh-server \
-    shadow-utils \
-    zsh \
-  && dnf clean all
-...
+```console
+brew install python@3.10
+brew link python@3.10
+exit
 ```
 
-Save the **Dockerfile**, close the remote **Visual Studio Code** window and run `xvcmd "sudo xv eks-hero"`. Let's open the remote **Visual Studio Code** using `code --remote ssh-remote+xavier /workspace`.
+Now, as `root` you can use the `python3` command normally. If you use `which` to get the `python3` and `pip` binary location, the result will be similar to this:
 
-Now you can use the helper script tools [eks-kubeconfig.sh](#eks-kubeconfigsh), [get-kubectl.sh](#get-kubectlsh) and [update-eksctl.sh](#update-eksctlsh) to proper configure the `kubeconfig`, download the desired `kubectl` client version and to install/update `eksctl`.
+```console
+which python3
+/home/linuxbrew/.linuxbrew/bin/python3
+which pip
+/home/linuxbrew/.linuxbrew/bin/pip
+```
+
+Note that you don't need to install the **AWS CLI** through **Homebrew**. Prefer to use the "fake" aws script instead.
 
 ## The "fake" aws script
 

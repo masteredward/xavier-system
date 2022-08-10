@@ -1,4 +1,4 @@
-FROM debian:11-slim
+FROM debian:sid-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 
