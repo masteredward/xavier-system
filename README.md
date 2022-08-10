@@ -454,6 +454,14 @@ After connecting the remote `xavier` instance, open the integrated terminal. You
 
 ## Using Homebrew
 
+To enable **Homebrew**, these 3 requirements must be true:
+
+1- **Homebrew** must be enabled on `xv-setup.yaml` before running `xv-setup` (enabled default).
+
+2- The **Homebrew** path `/opt/xavier/linuxbrew` must be mounted as a **volume** in the `xv.yaml` file to the path `/home/linuxbrew` as `rw` mode (see examples).
+
+3- The base source must be similar to the `xv-container-base-brew` example.
+
 Homebrew have some limitations and don't support running as `root`. To use the `brew` command, we need to change to the special **Homebrew** user `linuxbrew`:
 
 ```console
